@@ -1,0 +1,301 @@
+﻿{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "storageAccountType": {
+            "type": "string",
+            "defaultValue": "Standard_LRS",
+            "metadata": {
+                "description": "The type of Storage account"
+            }
+        },
+        "resourceGroupName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of an exisiting Resource Group that an existing Virtual Network is in."
+            }
+        },
+        "virtualNetworkName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the Virutal Network that the Subnets reside in."
+            }
+        },
+        "SubnetName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the Subnet to be used for mgmt."
+            }
+        },
+        "NICName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the MGMT NIC."
+            }
+        },
+        "PublicIPName": {
+            "type": "string",
+            "metadata": {
+                "description": "The Public DNS name of the mgmt public IP."
+            }
+        },
+        "availabilitySetName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the AV Set."
+            }
+        },
+        "loadBalancerName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of your load balancer."
+            }
+        },
+        "wafName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the WAF."
+            }
+        },
+        "vmSize": {
+            "type": "string",
+            "metadata": {
+                "description": "The size of the VM Instance"
+            }
+        },
+        "adminUsername": {
+            "type": "string",
+            "metadata": {
+                "description": "The username to use for the admin account."
+            }
+        },
+        "adminPassword": {
+            "type": "string",
+            "metadata": {
+                "description": "The password for the admin account."
+            }
+        },
+        "guiMgmtPort": {
+            "type": "int",
+            "metadata": {
+                "description": "Port to be used for GUI Mgmt access.(example 8443)"
+            }
+        },
+        "sshMgmtPort": {
+            "type": "int",
+            "metadata": { 
+                "description": "Port to be used for SSH Mgmt access. (example 8022)"
+            }
+        },
+        "userImageStorageAccountName": {
+            "type": "string",
+            "metadata": {
+                "description": "This is the name of the your storage account"
+            }
+        },
+        "userImageStorageContainerName": {
+            "type": "string",
+            "metadata": {
+                "description": "This is the name of the container in your storage account"
+            }
+        },
+        "userImageVhdName": {
+            "type": "string",
+            "metadata": {
+                "description": "This is the name of the your customized VHD"
+            }
+        }
+    },
+    "variables": {
+        "vnetID": "[resourceId(parameters('resourceGroupName'), 'Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
+        "subnetRef": "[concat(variables('vnetID'),'/subnets/', parameters('SubnetName'))]",
+        "PublicIPID": "[resourceId('Microsoft.Network/publicIPAddresses',parameters('PublicIPName'))]",
+        "userImageName": "[concat('http://',parameters('userImageStorageAccountName'),'.blob.core.windows.net/',parameters('userImageStorageContainerName'),'/',parameters('userImageVhdName'))]",
+        "lbID": "[resourceId('Microsoft.Network/loadBalancers',parameters('loadBalancerName'))]"
+    },
+    "resources": [
+        {
+            "apiVersion": "2015-05-01-preview",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "name": "[parameters('PublicIPName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "publicIPAllocationMethod": "Dynamic",
+                "dnsSettings": {
+                    "domainNameLabel": "[parameters('PublicIPName')]"
+                }
+            }
+        },
+        {
+            "apiVersion": "2015-05-01-preview",
+            "type": "Microsoft.Network/networkInterfaces",
+            "name": "[concat(parameters('NICName'))]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/loadBalancers/', parameters('loadBalancerName'))]"
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[variables('subnetRef')]"
+                            },
+                            "loadBalancerBackendAddressPools": [
+                                {
+                                    "id": "[concat(variables('lbID'), '/backendAddressPools/', parameters('loadBalancerName'), 'BackendPool')]"
+                                }
+                            ],
+                            "loadBalancerInboundNatRules": [
+                                {
+                                    "id": "[concat(variables('lbID'), '/inboundNatRules/', parameters('loadBalancerName'), 'mgt')]"
+                                },
+                                { 
+                                    "id": "[concat(variables('lbID'), '/inboundNatRules/', parameters('loadBalancerName'), 'ssh')]"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "apiVersion": "2015-05-01-preview",
+            "type": "Microsoft.Compute/availabilitySets",
+            "name": "[parameters('availabilitySetName')]",
+            "location": "[resourceGroup().location]"
+        },
+        {
+            "apiVersion": "2015-05-01-preview",
+            "type": "Microsoft.Network/loadBalancers",
+            "name": "[parameters('loadBalancerName')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/publicIPAddresses/', parameters('PublicIPName'))]"
+            ],
+            "properties": {
+                "frontendIpConfigurations": [
+                    {
+                        "properties": {
+                            "publicIPAddress": {
+                                "id": "[variables('PublicIPID')]"
+                            }
+                        },
+                        "name": "[concat(parameters('loadBalancerName'), 'Frontend')]"
+                    }
+                ],
+                "backendAddressPools": [
+                    {
+                        "name": "[concat(parameters('loadBalancerName'), 'BackendPool')]"
+                    }
+                ],
+                "loadBalancingRules": [
+                    {
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[concat(variables('lbID'), '/frontendIpConfigurations/', parameters('loadBalancerName'),'Frontend')]"
+                            },
+                            "backendAddressPool": {
+                                "id": "[concat(variables('lbID'), '/backendAddressPools/', parameters('loadBalancerName'), 'BackendPool')]"
+                            },
+                            "probe": {
+                                "id": "[concat(variables('lbID'), '/probes/', parameters('loadBalancerName'), 'lbprobe')]"
+                            },
+                            "protocol": "Tcp",
+                            "frontendPort": 80,
+                            "backendPort": 80,
+                            "idleTimeoutInMinutes": 15
+                        },
+                        "name": "[concat(parameters('loadBalancerName'), 'lbrule')]"
+                    }
+                ],
+                "probes": [
+                    {
+                        "properties": {
+                            "protocol": "Tcp",
+                            "port": 80,
+                            "intervalInSeconds": 15,
+                            "numberOfProbes": 2
+                        },
+                        "name": "[concat(parameters('loadBalancerName'),'lbprobe')]"
+                    }
+                ],
+                "inboundNatRules": [
+                    {
+                        "name": "[concat(parameters('loadBalancerName'), 'mgt')]",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[concat(variables('lbID'), '/frontendIpConfigurations/', parameters('loadBalancerName'),'Frontend')]"
+                            },
+                            "protocol": "tcp",
+                            "frontendPort": "[parameters('guiMgmtPort')]",
+                            "backendPort": 443,
+                            "enableFloatingIP": false
+                        }
+                    },
+                    {
+                        "name": "[concat(parameters('loadBalancerName'), 'mgt')]",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[concat(variables('lbID'), '/frontendIpConfigurations/', parameters('loadBalancerName'),'Frontend')]"
+                            },
+                            "protocol": "tcp",
+                            "frontendPort": "[parameters('sshMgmtPort')]",
+                            "backendPort": 22,
+                            "enableFloatingIP": false
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "apiVersion": "2015-05-01-preview",
+            "type": "Microsoft.Compute/virtualMachines",
+            "name": "[concat(parameters('wafName'))]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[concat('Microsoft.Compute/availabilitySets/', parameters('availabilitySetName'))]",
+                "[concat('Microsoft.Network/networkInterfaces/', parameters('NICName'))]"
+            ],
+            "properties": {
+                "availabilitySet": {
+                    "id": "[resourceId('Microsoft.Compute/availabilitySets',parameters('availabilitySetName'))]"
+                },
+                "hardwareProfile": {
+                    "vmSize": "[parameters('vmSize')]"
+                },
+                "osProfile": {
+                    "computerName": "[concat(parameters('wafName'))]",
+                    "adminUsername": "[parameters('adminUsername')]",
+                    "adminPassword": "[parameters('adminPassword')]"
+                },
+                "storageProfile": {
+                    "osDisk": {
+                        "name": "[concat(parameters('wafName'), '-osDisk')]",
+                        "osType": "Linux",
+                        "caching": "ReadWrite",
+                        "createOption": "FromImage",
+                        "image": {
+                            "uri": "[variables('userImageName')]"
+                        },
+                        "vhd": {
+                            "uri": "[concat('http://',parameters('userImageStorageAccountName'),'.blob.core.windows.net/',parameters('userImageStorageContainerName'),'/',parameters('wafName'),'osDisk', '.vhd')]"
+                        }
+                    }
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "properties": { "primary": true },
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(parameters('NICName')))]"
+                        }
+                    ]
+                }
+            }
+        }
+    ],
+    "outputs": {
+    }
+}

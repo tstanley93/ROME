@@ -1,0 +1,2 @@
+c:\users\stanley\documents\visual studio 2013\Projects\Azure_BIG-IP_Deployment\Azure_BIG-IP_Deployment\bin\Debug\Scripts\Deploy-AzureResourceGroup_v1.ps1
+c:\users\stanley\documents\visual studio 2013\Projects\Azure_BIG-IP_Deployment\Azure_BIG-IP_Deployment\bin\Debug\Templates\Azure_BIG-IP_Deployment.json

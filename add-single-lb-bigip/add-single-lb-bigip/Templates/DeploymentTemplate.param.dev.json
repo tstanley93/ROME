@@ -1,0 +1,59 @@
+﻿{
+    "resourceGroupName": {
+        "value": null
+    },
+    "virtualNetworkName": {
+        "value": null
+    },
+    "SubnetName": {
+        "value": null
+    },
+    "staticIPAddress": { 
+        "value": "10.200.1.26"
+    },
+    "NICName": {
+        "value": null
+    },
+    "availabilitySetName": {
+        "value": null
+    },
+    "loadBalancerName": {
+        "value": null
+    },
+    "inboundNATRuleGUIName": {
+        "value": null
+    },
+    "inboundNATRuleGUIExternalPort": {
+        "value": null
+    },
+    "inboundNATRuleGUIInternalPort": {
+        "value": 443
+    },
+    "inboundNATRuleSSHName": {
+        "value": null
+    },
+    "inboundNATRuleSSHExternalPort": {
+        "value": null
+    },
+    "inboundNATRuleSSHInternalPort": {
+        "value": 22
+    },
+    "wafName": {
+        "value": null
+    },
+    "vmSize": {
+        "value": "Standard_A4"
+    },
+    "adminUsername": {
+        "value": null
+    },
+    "userImageStorageAccountName": {
+        "value": "waftest20"
+    },
+    "userImageStorageContainerName": {
+        "value": "waftest20"
+    },
+    "userImageVhdName": {
+        "value": "waftest20.vhd"
+    }
+}

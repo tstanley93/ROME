@@ -1,0 +1,2 @@
+c:\users\stanley\documents\visual studio 2013\Projects\single-lb-bigip\single-lb-bigip\bin\Release\Scripts\Deploy-AzureResourceGroup.ps1
+c:\users\stanley\documents\visual studio 2013\Projects\single-lb-bigip\single-lb-bigip\bin\Release\Templates\DeploymentTemplate.json

@@ -1,0 +1,212 @@
+﻿{
+    "$schema": "https://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "resourceGroupName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the exisiting Resource Group that the existing Virtual Network is in."
+            }
+        },
+        "virtualNetworkName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the existing Virutal Network."
+            }
+        },
+        "SubnetName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the exisiting Subnet."
+            }
+        },
+        "staticIPAddress": {
+            "type": "string",
+            "metadata": {
+                "description": "The static IP address for the BIG-IP MGMT and Traffic NIC."
+            }
+        },
+        "NICName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the new NIC."
+            }
+        },
+        "availabilitySetName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of your existing AV Set."
+            }
+        },
+        "loadBalancerName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of your existing load balancer."
+            }
+        },
+        "inboundNATRuleGUIName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the new mgmt GUI NAT Rule, must be different than existing."
+            }
+        },
+        "inboundNATRuleGUIExternalPort": {
+            "type": "int",
+            "metadata": {
+                "description": "The external port number of the new mgmt GUI NAT Rule, must be different than existing."
+            }
+        },
+        "inboundNATRuleGUIInternalPort": {
+            "type": "int",
+            "metadata": {
+                "description": "The internal port number of the new mgmt GUI NAT Rule, must be different than existing."
+            }
+        },
+        "inboundNATRuleSSHName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the new mgmt SSH NAT Rule, must be different than existing."
+            }
+        },
+        "inboundNATRuleSSHExternalPort": {
+            "type": "int",
+            "metadata": {
+                "description": "The external port number of the new mgmt SSH NAT Rule, must be different than existing."
+            }
+        },
+        "inboundNATRuleSSHInternalPort": {
+            "type": "int",
+            "metadata": {
+                "description": "The internal port number of the new mgmt SSH NAT Rule, must be different than existing."
+            }
+        },
+        "wafName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the new WAF."
+            }
+        },
+        "vmSize": {
+            "type": "string",
+            "metadata": {
+                "description": "The size of the WAF Instance"
+            }
+        },
+        "adminUsername": {
+            "type": "string",
+            "metadata": {
+                "description": "The username to use for the admin account."
+            }
+        },
+        "adminPassword": {
+            "type": "string",
+            "metadata": {
+                "description": "The password for the admin account."
+            }
+        },
+        "userImageStorageAccountName": {
+            "type": "string",
+            "metadata": {
+                "description": "This is the name of the existing storage account"
+            }
+        },
+        "userImageStorageContainerName": {
+            "type": "string",
+            "metadata": {
+                "description": "This is the name of the existing container in your storage account"
+            }
+        },
+        "userImageVhdName": {
+            "type": "string",
+            "metadata": {
+                "description": "This is the name of the your customized VHD"
+            }
+        }
+    },
+    "variables": {
+        "vnetID": "[resourceId(parameters('resourceGroupName'), 'Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
+        "subnetRef": "[concat(variables('vnetID'),'/subnets/', parameters('SubnetName'))]",
+        "userImageName": "[concat('http://',parameters('userImageStorageAccountName'),'.blob.core.windows.net/',parameters('userImageStorageContainerName'),'/',parameters('userImageVhdName'))]",
+        "lbID": "[resourceId('Microsoft.Network/loadBalancers',parameters('loadBalancerName'))]",
+        "avsetID": "[resourceId('Microsoft.Network/availabilitySets',parameters('availabilitySetName'))]"
+    },
+    "resources": [
+        {
+            "apiVersion": "2015-05-01-preview",
+            "type": "Microsoft.Network/networkInterfaces",
+            "name": "[concat(parameters('NICName'))]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig",
+                        "properties": {
+                            "privateIPAllocationMethod": "Static",
+                            "privateIPAddress": "[parameters('staticIPAddress')]",
+                            "subnet": {
+                                "id": "[variables('subnetRef')]"
+                            },
+                            "loadBalancerBackendAddressPools": [
+                                {
+                                    "id": "[concat(variables('lbID'), '/backendAddressPools/', parameters('loadBalancerName'), 'BackendPool')]"
+                                }
+                            ],
+                            "loadBalancerInboundNatRules": [
+                                {
+                                    "id": "[concat(variables('lbID'), '/inboundNatRules/', parameters('loadBalancerName'), parameters('inboundNATRuleGUIName'))]"
+                                },
+                                {
+                                    "id": "[concat(variables('lbID'), '/inboundNatRules/', parameters('loadBalancerName'), parameters('inboundNATRuleSSHName'))]"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "apiVersion": "2015-05-01-preview",
+            "type": "Microsoft.Compute/virtualMachines",
+            "name": "[concat(parameters('wafName'))]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkInterfaces/', parameters('NICName'))]"
+            ],
+            "properties": {
+                "availabilitySet": {
+                    "id": "[resourceId('Microsoft.Compute/availabilitySets',parameters('availabilitySetName'))]"
+                },
+                "hardwareProfile": {
+                    "vmSize": "[parameters('vmSize')]"
+                },
+                "osProfile": {
+                    "computerName": "[concat(parameters('wafName'))]",
+                    "adminUsername": "[parameters('adminUsername')]",
+                    "adminPassword": "[parameters('adminPassword')]"
+                },
+                "storageProfile": {
+                    "osDisk": {
+                        "name": "[concat(parameters('wafName'), '-osDisk')]",
+                        "osType": "Linux",
+                        "caching": "ReadWrite",
+                        "createOption": "FromImage",
+                        "image": {
+                            "uri": "[variables('userImageName')]"
+                        },
+                        "vhd": {
+                            "uri": "[concat('http://',parameters('userImageStorageAccountName'),'.blob.core.windows.net/',parameters('userImageStorageContainerName'),'/',parameters('wafName'),'osDisk', '.vhd')]"
+                        }
+                    }
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "properties": { "primary": true },
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(parameters('NICName')))]"
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}
