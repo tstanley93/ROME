@@ -1,59 +1,50 @@
-﻿{
-    "resourceGroupName": {
-        "value": null
-    },
-    "virtualNetworkName": {
-        "value": null
-    },
-    "SubnetName": {
-        "value": null
-    },
-    "staticIPAddress": { 
-        "value": "10.200.1.26"
-    },
-    "NICName": {
-        "value": null
-    },
-    "availabilitySetName": {
-        "value": null
-    },
-    "loadBalancerName": {
-        "value": null
-    },
-    "inboundNATRuleGUIName": {
-        "value": null
-    },
-    "inboundNATRuleGUIExternalPort": {
-        "value": null
-    },
-    "inboundNATRuleGUIInternalPort": {
-        "value": 443
-    },
-    "inboundNATRuleSSHName": {
-        "value": null
-    },
-    "inboundNATRuleSSHExternalPort": {
-        "value": null
-    },
-    "inboundNATRuleSSHInternalPort": {
-        "value": 22
-    },
-    "wafName": {
-        "value": null
-    },
-    "vmSize": {
-        "value": "Standard_A4"
-    },
-    "adminUsername": {
-        "value": null
-    },
-    "userImageStorageAccountName": {
-        "value": "waftest20"
-    },
-    "userImageStorageContainerName": {
-        "value": "waftest20"
-    },
-    "userImageVhdName": {
-        "value": "waftest20.vhd"
-    }
+{
+    "resourceGroupName":  {
+                              "value":  "waftest4"
+                          },
+    "virtualNetworkName":  {
+                               "value":  "BIGIPVNET"
+                           },
+    "SubnetName":  {
+                       "value":  "BIGIPSubNet"
+                   },
+    "staticIPAddress":  {
+                            "value":  "10.10.1.12"
+                        },
+    "NICName":  {
+                    "value":  "waftest3"
+                },
+    "availabilitySetName":  {
+                                "value":  "BIGIPAvailabilitySet"
+                            },
+    "loadBalancerName":  {
+                             "value":  "BIGIPLoadBlancer"
+                         },
+    "inboundNATRuleGUIName":  {
+                                  "value":  "guimgt2"
+                              },
+    "inboundNATRuleGUIExternalPort":  {
+                                          "value":  "9443"
+                                      },
+    "inboundNATRuleSSHName":  {
+                                  "value":  "sshmgt2"
+                              },
+    "inboundNATRuleSSHExternalPort":  {
+                                          "value":  "9022"
+                                      },
+    "wafName":  {
+                    "value":  "waftest3"
+                },
+    "adminUsername":  {
+                          "value":  "topduck"
+                      },
+    "userImageStorageAccountName":  {
+                                        "value":  "waftest4"
+                                    },
+    "userImageStorageContainerName":  {
+                                          "value":  "waftest4"
+                                      },
+    "userImageVhdName":  {
+                             "value":  "waftest4.vhd"
+                         }
 }

@@ -8,6 +8,7 @@ Param(
 Set-StrictMode -Version 3
 Import-Module Azure -ErrorAction SilentlyContinue
 Add-AzureAccount
+Switch-AzureMode AzureResourceManager
 
 try {
     $AzureToolsUserAgentString = New-Object -TypeName System.Net.Http.Headers.ProductInfoHeaderValue -ArgumentList 'VSAzureTools', '1.4'
@@ -16,59 +17,57 @@ try {
 
 $TemplateFile = [System.IO.Path]::Combine($PSScriptRoot, $TemplateFile)
 $TemplateParametersFile = [System.IO.Path]::Combine($PSScriptRoot, $TemplateParametersFile)
-$ResourceGroupLocation= Read-Host -Prompt "Please enter the new resource group location, e.g. West US:"
-$ResourceGroupName= Read-Host -Prompt "Please enter the name of the new resource group:"
-$srcUri= Read-Host -Prompt "Please enter the URI including the .vhd file name of the source image:"
-$adminName= Read-Host -Prompt "Please enter a new administrator username for the VM:"
-
-
-# Create or update the resource group using the specified template file and template parameters file
-Switch-AzureMode AzureResourceManager
+$ResourceGroupLocation= Read-Host -Prompt "Please enter the existing resource group location, e.g. West US"
+$ResourceGroupName= Read-Host -Prompt "Please enter the name of the existing resource group"
+$adminName= Read-Host -Prompt "Please enter a new administrator username for the WAF VM"
+$ipAddress= Read-Host -Prompt "Please enter a new internal static IP Address for the WAF VM"
+$NICName= Read-Host -Prompt "Please enter a name for the new WAF VM NIC"
+$wafName= Read-Host -Prompt "Please enter a name for the new WAF VM"
+$inboundNATRuleGUIName= Read-Host -Prompt "Please enter a name for the new WAF VM MGMT GUI NAT Rule"
+$inboundNATRuleGUIExternalPort= Read-Host -Prompt "Please enter a port number for the new WAF VM MGMT GUI NAT Rule (eg 9443)"
+$inboundNATRuleSSHName= Read-Host -Prompt "Please enter a name for the new WAF VM SSH NAT Rule"
+$inboundNATRuleSSHExternalPort= Read-Host -Prompt "Please enter a port number for the new WAF VM SSH NAT Rule (eg 9022)"
+$vNet= Get-AzureVirtualNetwork -ResourceGroupName $ResourceGroupName
+$availabilitySetName = Get-AzureAvailabilitySet -ResourceGroupName $ResourceGroupName
+$loadBalancerName= Get-AzureLoadBalancer -ResourceGroupName $ResourceGroupName
+$stor= Get-AzureStorageAccount -ResourceGroupName $ResourceGroupName
+$key= Get-AzureStorageAccountKey -ResourceGroupName $ResourceGroupName -StorageAccountName $stor.Name
+$context= New-AzureStorageContext -StorageAccountName $stor.Name -StorageAccountKey $key.key1
+$container= Get-AzureStorageContainer -Context $context
+$vhd= Get-AzureStorageBlob -Container $container.Name -Context $context
+foreach ($i in $vhd)
+{
+	if ($i.Length -ne 0) {
+		if ($i.Name -notmatch "osdisk") {
+				$srcVhd= $i.Name
+			}
+	}
+}
 
 #Read the JSON Parameter file
 $json= Get-Content -Raw -Path $TemplateParametersFile | ConvertFrom-Json
-$json.parameters.newStorageAccountName.value = $ResourceGroupName
-$json.parameters.dnsNameForPublicIP.value = $ResourceGroupName
-$json.parameters.adminUsername.value = $adminName
+
+#Write parameters to JSON Paramter file
+$json.resourceGroupName.value = $ResourceGroupName
+$json.virtualNetworkName.value = $vNet.Name
+$json.SubnetName.value = $vNet.Subnets[0].Name
+$json.staticIPAddress.value = $ipAddress
+$json.NICName.value = $NICName
+$json.availabilitySetName.value = $availabilitySetName.Name
+$json.loadBalancerName.value = $loadBalancerName.Name
+$json.wafName.value = $wafName
+$json.inboundNATRuleGUIName.value = $inboundNATRuleGUIName
+$json.inboundNATRuleGUIExternalPort.value = $inboundNATRuleGUIExternalPort
+$json.inboundNATRuleSSHName.value = $inboundNATRuleSSHName
+$json.inboundNATRuleSSHExternalPort.value = $inboundNATRuleSSHExternalPort
+$json.adminUsername.value = $adminName
+$json.userImageStorageAccountName.value = $stor.Name
+$json.userImageStorageContainerName.value = $container.Name
+$json.userImageVhdName.value = $srcVhd
 $json | ConvertTo-Json | Set-Content -Path $TemplateParametersFile
 
-###Create a new Resource Group for Deployment
-New-AzureResourceGroup -Name $ResourceGroupName -Location $ResourceGroupLocation
 
-###Create a new destination storage account
-New-AzureStorageAccount -ResourceGroupName $ResourceGroupName -Name $json.parameters.newStorageAccountName.value -Type Standard_LRS -Location $ResourceGroupLocation
-
-### Get new destination storage account key
-$destStorageKey= Get-AzureStorageAccountKey -ResourceGroupName $ResourceGroupName -Name $json.parameters.newStorageAccountName.value
-
-### Create the source storage account context ### 
-$srcContext = New-AzureStorageContext  –StorageAccountName "bigipv12606best" -StorageAccountKey "yGGWNx8bwxQRkg3mOlPwevLTCu/GcVsKg9Ya4+SipQXccAItlBrAYARzv7l5qicyQt2Eb7lLm3hkfFzSnJ6fcQ==" 
-
-### Create the destination storage account context ### 
-$destContext = New-AzureStorageContext  –StorageAccountName $json.parameters.newStorageAccountName.value -StorageAccountKey $destStorageKey.Key1
- 
-### Create the container on the destination ### 
-New-AzureStorageContainer -Name $json.parameters.newStorageAccountName.value -Context $destContext 
- 
-### Start the asynchronous copy - specify the source authentication with -SrcContext ### 
-$blob1 = Start-AzureStorageBlobCopy -srcUri $srcUri -SrcContext $srcContext -DestContainer $json.parameters.newStorageAccountName.value -DestBlob ($json.parameters.newStorageAccountName.value + '.vhd') -DestContext $destContext
-
-### Retrieve the current status of the copy operation ###
-$status = $blob1 | Get-AzureStorageBlobCopyState 
- 
-### Loop until complete ###                                    
-While($status.Status -eq "Pending"){
-  $status = $blob1 | Get-AzureStorageBlobCopyState 
-  Start-Sleep 10
-  ### Print out status ###
-  #$status
-  $copyStatus= ($status.BytesCopied/$status.TotalBytes*100)
-  $copyStatus= [Math]::Round($copyStatus,2)
-  Write-Progress -Activity "Copy vhd" -Status "$copyStatus% Complete:" -PercentComplete $copyStatus
-}
-
-
-
+###Start the Deployment
 New-AzureResourceGroup -Name $ResourceGroupName `
                        -Location $ResourceGroupLocation `
                        -TemplateFile $TemplateFile `

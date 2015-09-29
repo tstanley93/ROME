@@ -57,7 +57,8 @@
             }
         },
         "inboundNATRuleGUIInternalPort": {
-            "type": "int",
+          "type": "int",
+          "defaultValue": 443,
             "metadata": {
                 "description": "The internal port number of the new mgmt GUI NAT Rule, must be different than existing."
             }
@@ -75,7 +76,8 @@
             }
         },
         "inboundNATRuleSSHInternalPort": {
-            "type": "int",
+          "type": "int",
+          "defaultValue": 22,
             "metadata": {
                 "description": "The internal port number of the new mgmt SSH NAT Rule, must be different than existing."
             }
@@ -87,7 +89,8 @@
             }
         },
         "vmSize": {
-            "type": "string",
+          "type": "string",
+          "defaultValue": "Standard_A4",
             "metadata": {
                 "description": "The size of the WAF Instance"
             }
