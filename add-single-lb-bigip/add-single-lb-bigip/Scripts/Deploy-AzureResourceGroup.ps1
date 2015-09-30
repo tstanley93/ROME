@@ -83,5 +83,5 @@ $json | ConvertTo-Json | Set-Content -Path $TemplateParametersFile
 ###Start the Deployment
 New-AzureResourceGroupDeployment -Name $wafName -ResourceGroupName $ResourceGroupName -TemplateParameterFile $TemplateParametersFile -TemplateFile $TemplateFile -Force -Verbose
 
-$url= Get-AzurePublicIP -ResourceGroupName $ResourceGroupName
+$url= Get-AzurePublicIpAddress -ResourceGroupName $ResourceGroupName
 Write-Host ("You can connect to the new WAF via https://{0}:{1}/" -f $url.DnsSettings.Fqdn, $inboundNATRuleGUIExternalPort.ToString())
