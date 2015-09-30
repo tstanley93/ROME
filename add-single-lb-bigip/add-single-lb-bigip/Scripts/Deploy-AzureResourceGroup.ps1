@@ -1,7 +1,7 @@
 ﻿#Requires -Version 3.0
 
 Param(
-  [string] $TemplateFile = '..\Templates\Azure_BIG-IP_Deployment_v2.json',
+  [string] $TemplateFile = '..\Templates\DeploymentTemplate.json',
   [string] $TemplateParametersFile = '..\Templates\DeploymentTemplate.param.dev.json'
 )
 
@@ -24,9 +24,9 @@ $ipAddress= Read-Host -Prompt "Please enter a new internal static IP Address for
 $NICName= Read-Host -Prompt "Please enter a name for the new WAF VM NIC"
 $wafName= Read-Host -Prompt "Please enter a name for the new WAF VM"
 $inboundNATRuleGUIName= Read-Host -Prompt "Please enter a name for the new WAF VM MGMT GUI NAT Rule"
-$inboundNATRuleGUIExternalPort= Read-Host -Prompt "Please enter a port number for the new WAF VM MGMT GUI NAT Rule (eg 9443)"
+[int]$inboundNATRuleGUIExternalPort= Read-Host -Prompt "Please enter a port number for the new WAF VM MGMT GUI NAT Rule (eg 9443)"
 $inboundNATRuleSSHName= Read-Host -Prompt "Please enter a name for the new WAF VM SSH NAT Rule"
-$inboundNATRuleSSHExternalPort= Read-Host -Prompt "Please enter a port number for the new WAF VM SSH NAT Rule (eg 9022)"
+[int]$inboundNATRuleSSHExternalPort= Read-Host -Prompt "Please enter a port number for the new WAF VM SSH NAT Rule (eg 9022)"
 $vNet= Get-AzureVirtualNetwork -ResourceGroupName $ResourceGroupName
 $availabilitySetName = Get-AzureAvailabilitySet -ResourceGroupName $ResourceGroupName
 $loadBalancerName= Get-AzureLoadBalancer -ResourceGroupName $ResourceGroupName
@@ -43,6 +43,19 @@ foreach ($i in $vhd)
 			}
 	}
 }
+
+#Create new Inbound NAT Rules on existing load balancer
+$loadBalancerName | Add-AzureLoadBalancerInboundNatRuleConfig -Name $inboundNATRuleGUIName `
+    -FrontendIPConfiguration $loadBalancerName.FrontendIPConfigurations[0] `
+    -Protocol Tcp `
+    -FrontendPort $inboundNATRuleGUIExternalPort `
+    -BackendPort 443
+
+$loadBalancerName | Add-AzureLoadBalancerInboundNatRuleConfig -Name $inboundNATRuleSSHName `
+	-FrontendIPConfiguration $loadBalancerName.FrontendIPConfigurations[0] `
+	-Protocol Tcp `
+	-FrontendPort $inboundNATRuleSSHExternalPort `
+	-BackendPort 22 | Set-AzureLoadBalancer
 
 #Read the JSON Parameter file
 $json= Get-Content -Raw -Path $TemplateParametersFile | ConvertFrom-Json
@@ -68,8 +81,7 @@ $json | ConvertTo-Json | Set-Content -Path $TemplateParametersFile
 
 
 ###Start the Deployment
-New-AzureResourceGroup -Name $ResourceGroupName `
-                       -Location $ResourceGroupLocation `
-                       -TemplateFile $TemplateFile `
-                       -TemplateParameterFile $TemplateParametersFile `
-                        -Force -Verbose
+New-AzureResourceGroupDeployment -Name $wafName -ResourceGroupName $ResourceGroupName -TemplateParameterFile $TemplateParametersFile -TemplateFile $TemplateFile -Force -Verbose
+
+$url= Get-AzurePublicIP -ResourceGroupName $ResourceGroupName
+Write-Host ("You can connect to the new WAF via https://{0}:{1}/" -f $url.DnsSettings.Fqdn, $inboundNATRuleGUIExternalPort.ToString())

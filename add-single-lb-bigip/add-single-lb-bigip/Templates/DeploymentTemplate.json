@@ -151,15 +151,15 @@
                             },
                             "loadBalancerBackendAddressPools": [
                                 {
-                                    "id": "[concat(variables('lbID'), '/backendAddressPools/', parameters('loadBalancerName'), 'BackendPool')]"
+                                    "id": "[concat(variables('lbID'), '/backendAddressPools/', 'loadBalancerBackEnd')]"
                                 }
                             ],
                             "loadBalancerInboundNatRules": [
                                 {
-                                    "id": "[concat(variables('lbID'), '/inboundNatRules/', parameters('loadBalancerName'), parameters('inboundNATRuleGUIName'))]"
+                                    "id": "[concat(variables('lbID'), '/inboundNatRules/', parameters('inboundNATRuleGUIName'))]"
                                 },
                                 {
-                                    "id": "[concat(variables('lbID'), '/inboundNatRules/', parameters('loadBalancerName'), parameters('inboundNATRuleSSHName'))]"
+                                    "id": "[concat(variables('lbID'), '/inboundNatRules/', parameters('inboundNATRuleSSHName'))]"
                                 }
                             ]
                         }

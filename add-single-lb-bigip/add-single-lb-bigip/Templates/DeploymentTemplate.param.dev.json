@@ -24,13 +24,13 @@
                                   "value":  "guimgt2"
                               },
     "inboundNATRuleGUIExternalPort":  {
-                                          "value":  "9443"
+                                          "value":  9443
                                       },
     "inboundNATRuleSSHName":  {
                                   "value":  "sshmgt2"
                               },
     "inboundNATRuleSSHExternalPort":  {
-                                          "value":  "9022"
+                                          "value":  9022
                                       },
     "wafName":  {
                     "value":  "waftest3"
