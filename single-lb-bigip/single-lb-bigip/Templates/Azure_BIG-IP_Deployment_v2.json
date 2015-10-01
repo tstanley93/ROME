@@ -1,110 +1,116 @@
 ﻿{
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "newStorageAccountName": {
-            "type": "string",
-            "metadata": {
-                "description": "Unique DNS Name for the Storage Account where the Virtual Machine's disks will be placed."
-            }
-        },
-        "storageAccountType": {
-            "type": "string",
-            "defaultValue": "Standard_LRS",
-            "metadata": {
-                "description": ""
-            }
-        },
-        "location": {
-            "type": "string",
-            "defaultValue": "West US",
-            "allowedValues": [
-                "West US",
-                "East US"
-            ]
-        },
-        "vmName": {
-            "type": "string",
-            "defaultValue": "MyBIGIP",
-            "metadata": {
-                "description": ""
-            }
-        },
-        "vmSize": {
-            "type": "string",
-            "defaultValue": "Standard_A4",
-            "metadata": { 
-                "description": ""
-            }
-        },
-        "adminUsername": {
-            "type": "string",
-            "metadata": {
-                "description": "User name for the Virtual Machine."
-            }
-        },
-        "adminPassword": {
-            "type": "securestring",
-            "metadata": {
-                "description": "Password for the Virtual Machine."
-            }
-        },
-        "virtualNetworkName": {
-            "type": "string",
-            "defaultValue": "BIGIPVNET",
-            "metadata": { 
-                "description": ""
-            }
-        },
-        "vnetAddressPrefix": {
-            "type": "string",
-            "defaultValue": "10.10.0.0/16",
-            "metadata": {
-                "description": ""
-            }
-        },
-        "subnetName": {
-            "type": "string",
-            "defaultValue": "BIGIPSubNet",
-            "metadata": {
-                "description": ""
-            }
-        },
-        "subnetPrefix": {
-            "type": "string",
-            "defaultValue": "10.10.1.0/24",
-            "metadata": {
-                "description": ""
-            }
-        },
-        "nicName": {
-            "type": "string",
-            "defaultValue": "BIGIPNic",
-            "metadata": {
-                "description": ""
-            }
-        },
-        "loadBalancerName": {
-            "type": "string",
-            "defaultValue": "BIGIPLoadBlancer",
-            "metadata": {
-                "description": ""
-            }
-        },
-        "availabilitySetName": {
-            "type": "string",
-            "defaultValue": "BIGIPAvailabilitySet",
-            "metadata": { 
-                "description": ""
-            }
-        },
-        "dnsNameForPublicIP": {
-            "type": "string",
-            "metadata": {
-                "description": "Unique DNS Name for the Public IP used to access the Virtual Machine."
-            }
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "newStorageAccountName": {
+      "type": "string",
+      "metadata": {
+        "description": "Unique DNS Name for the Storage Account where the Virtual Machine's disks will be placed."
+      }
     },
+    "storageAccountType": {
+      "type": "string",
+      "defaultValue": "Standard_LRS",
+      "metadata": {
+        "description": ""
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "West US",
+      "allowedValues": [
+        "West US",
+        "East US"
+      ]
+    },
+    "vmName": {
+      "type": "string",
+      "defaultValue": "MyBIGIP",
+      "metadata": {
+        "description": ""
+      }
+    },
+    "vmSize": {
+      "type": "string",
+      "defaultValue": "Standard_A4",
+      "metadata": {
+        "description": ""
+      }
+    },
+    "adminUsername": {
+      "type": "string",
+      "metadata": {
+        "description": "User name for the Virtual Machine."
+      }
+    },
+    "adminPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Password for the Virtual Machine."
+      }
+    },
+    "virtualNetworkName": {
+      "type": "string",
+      "defaultValue": "BIGIPVNET",
+      "metadata": {
+        "description": ""
+      }
+    },
+    "vnetAddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.10.0.0/16",
+      "metadata": {
+        "description": ""
+      }
+    },
+    "subnetName": {
+      "type": "string",
+      "defaultValue": "BIGIPSubNet",
+      "metadata": {
+        "description": ""
+      }
+    },
+    "subnetPrefix": {
+      "type": "string",
+      "defaultValue": "10.10.1.0/24",
+      "metadata": {
+        "description": ""
+      }
+    },
+    "staticIPAddress": {
+      "type": "string",
+      "metadata": {
+        "description": "A static IP address to be assigned to the WAF from the above listed subnet address range."
+      }
+    },
+    "nicName": {
+      "type": "string",
+      "defaultValue": "BIGIPNic",
+      "metadata": {
+        "description": ""
+      }
+    },
+    "loadBalancerName": {
+      "type": "string",
+      "defaultValue": "BIGIPLoadBlancer",
+      "metadata": {
+        "description": ""
+      }
+    },
+    "availabilitySetName": {
+      "type": "string",
+      "defaultValue": "BIGIPAvailabilitySet",
+      "metadata": {
+        "description": ""
+      }
+    },
+    "dnsNameForPublicIP": {
+      "type": "string",
+      "metadata": {
+        "description": "Unique DNS Name for the Public IP used to access the Virtual Machine."
+      }
+    }
+  },
     "variables": {
         "imageURI": "[concat('http://',parameters('newStorageAccountName'),'.blob.core.windows.net/',parameters('newStorageAccountName'),'/', parameters('newStorageAccountName'), '.vhd')]",
         "lbID": "[resourceId('Microsoft.Network/loadBalancers',parameters('loadBalancerName'))]",
@@ -170,7 +176,8 @@
                     {
                         "name": "ipconfig1",
                         "properties": {
-                            "privateIPAllocationMethod": "Dynamic",
+                          "privateIPAllocationMethod": "Static",
+                          "privateIPAddress": "[parameters('staticIPAddress')]",
                             "subnet": {
                                 "id": "[variables('subnetRef')]"
                             },

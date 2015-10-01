@@ -3,13 +3,16 @@
     "contentVersion":  "1.0.0.0",
     "parameters":  {
                        "newStorageAccountName":  {
-                                                     "value":  "waftest5"
+                                                     "value":  "waftest6"
                                                  },
                        "adminUsername":  {
                                              "value":  "topduck"
                                          },
                        "dnsNameForPublicIP":  {
-                                                  "value":  "waftest5"
-                                              }
+                                                  "value":  "waftest6"
+                                              },
+                       "staticIPAddress":  {
+                                               "value":  "10.10.1.10"
+                                           }
                    }
 }

@@ -8,6 +8,7 @@ Param(
 Set-StrictMode -Version 3
 Import-Module Azure -ErrorAction SilentlyContinue
 Add-AzureAccount
+Switch-AzureMode AzureResourceManager
 
 try {
     $AzureToolsUserAgentString = New-Object -TypeName System.Net.Http.Headers.ProductInfoHeaderValue -ArgumentList 'VSAzureTools', '1.4'
@@ -21,9 +22,6 @@ $ResourceGroupName= Read-Host -Prompt "Please enter the name of the new resource
 $srcUri= Read-Host -Prompt "Please enter the URI including the .vhd file name of the source image:"
 $adminName= Read-Host -Prompt "Please enter a new administrator username for the VM:"
 
-
-# Create or update the resource group using the specified template file and template parameters file
-Switch-AzureMode AzureResourceManager
 
 #Read the JSON Parameter file
 $json= Get-Content -Raw -Path $TemplateParametersFile | ConvertFrom-Json

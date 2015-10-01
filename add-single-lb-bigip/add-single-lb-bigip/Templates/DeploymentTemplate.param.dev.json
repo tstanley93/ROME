@@ -1,6 +1,6 @@
 {
     "resourceGroupName":  {
-                              "value":  "waftest5"
+                              "value":  "waftest6"
                           },
     "virtualNetworkName":  {
                                "value":  "BIGIPVNET"
@@ -9,10 +9,10 @@
                        "value":  "BIGIPSubNet"
                    },
     "staticIPAddress":  {
-                            "value":  "10.10.1.14"
+                            "value":  "10.10.1.11"
                         },
     "NICName":  {
-                    "value":  "MyBIGIPNIC2"
+                    "value":  "MyBIGIPNic2"
                 },
     "availabilitySetName":  {
                                 "value":  "BIGIPAvailabilitySet"
@@ -39,12 +39,12 @@
                           "value":  "topduck"
                       },
     "userImageStorageAccountName":  {
-                                        "value":  "waftest5"
+                                        "value":  "waftest6"
                                     },
     "userImageStorageContainerName":  {
-                                          "value":  "waftest5"
+                                          "value":  "waftest6"
                                       },
     "userImageVhdName":  {
-                             "value":  "waftest5.vhd"
+                             "value":  "waftest6.vhd"
                          }
 }
