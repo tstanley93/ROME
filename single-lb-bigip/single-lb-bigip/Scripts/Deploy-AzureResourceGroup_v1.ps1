@@ -27,6 +27,7 @@ $staticIPAddress= Read-Host -Prompt "Please enter a static IP address for the WA
 #Read the JSON Parameter file
 $json= Get-Content -Raw -Path $TemplateParametersFile | ConvertFrom-Json
 $json.parameters.newStorageAccountName.value = $ResourceGroupName
+$json.parameters.location.value = $ResourceGroupLocation
 $json.parameters.dnsNameForPublicIP.value = $ResourceGroupName
 $json.parameters.adminUsername.value = $adminName
 $json.parameters.staticIPAddress.value= $staticIPAddress

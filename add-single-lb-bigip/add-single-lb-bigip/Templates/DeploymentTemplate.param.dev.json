@@ -1,50 +1,50 @@
 {
-    "resourceGroupName":  {
-                              "value":  "waftest6"
-                          },
-    "virtualNetworkName":  {
-                               "value":  "BIGIPVNET"
-                           },
-    "SubnetName":  {
-                       "value":  "BIGIPSubNet"
-                   },
-    "staticIPAddress":  {
-                            "value":  "10.10.1.11"
-                        },
-    "NICName":  {
-                    "value":  "MyBIGIPNic2"
-                },
-    "availabilitySetName":  {
-                                "value":  "BIGIPAvailabilitySet"
-                            },
-    "loadBalancerName":  {
-                             "value":  "BIGIPLoadBlancer"
-                         },
-    "inboundNATRuleGUIName":  {
-                                  "value":  "guimgt2"
-                              },
-    "inboundNATRuleGUIExternalPort":  {
-                                          "value":  9443
-                                      },
-    "inboundNATRuleSSHName":  {
-                                  "value":  "sshmgt2"
-                              },
-    "inboundNATRuleSSHExternalPort":  {
-                                          "value":  9022
-                                      },
-    "wafName":  {
-                    "value":  "MyBIGIP2"
-                },
-    "adminUsername":  {
-                          "value":  "topduck"
-                      },
-    "userImageStorageAccountName":  {
-                                        "value":  "waftest6"
-                                    },
-    "userImageStorageContainerName":  {
-                                          "value":  "waftest6"
-                                      },
-    "userImageVhdName":  {
-                             "value":  "waftest6.vhd"
-                         }
+  "resourceGroupName": {
+    "value": null
+  },
+  "virtualNetworkName": {
+    "value": null
+  },
+  "SubnetName": {
+    "value": null
+  },
+  "staticIPAddress": {
+    "value": null
+  },
+  "NICName": {
+    "value": null
+  },
+  "availabilitySetName": {
+    "value": null
+  },
+  "loadBalancerName": {
+    "value": null
+  },
+  "inboundNATRuleGUIName": {
+    "value": null
+  },
+  "inboundNATRuleGUIExternalPort": {
+    "value": null
+  },
+  "inboundNATRuleSSHName": {
+    "value": null
+  },
+  "inboundNATRuleSSHExternalPort": {
+    "value": null
+  },
+  "wafName": {
+    "value": null
+  },
+  "adminUsername": {
+    "value": null
+  },
+  "userImageStorageAccountName": {
+    "value": null
+  },
+  "userImageStorageContainerName": {
+    "value": null
+  },
+  "userImageVhdName": {
+    "value": null
+  }
 }
