@@ -20,12 +20,6 @@
                 "description": "The name of the exisiting Subnet."
             }
         },
-        "staticIPAddress": {
-            "type": "string",
-            "metadata": {
-                "description": "The static IP address for the BIG-IP MGMT and Traffic NIC."
-            }
-        },
         "NICName": {
             "type": "string",
             "metadata": {
@@ -90,7 +84,7 @@
         },
         "vmSize": {
           "type": "string",
-          "defaultValue": "Standard_A4",
+          "defaultValue": "Standard_A3",
             "metadata": {
                 "description": "The size of the WAF Instance"
             }
@@ -144,8 +138,7 @@
                     {
                         "name": "ipconfig",
                         "properties": {
-                            "privateIPAllocationMethod": "Static",
-                            "privateIPAddress": "[parameters('staticIPAddress')]",
+                            "privateIPAllocationMethod": "Dynamic",
                             "subnet": {
                                 "id": "[variables('subnetRef')]"
                             },
