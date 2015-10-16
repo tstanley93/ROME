@@ -73,12 +73,6 @@
         "description": ""
       }
     },
-    "staticIPAddress": {
-      "type": "string",
-      "metadata": {
-        "description": "A static IP address to be assigned to the WAF from the above listed subnet address range."
-      }
-    },
     "nicName": {
       "type": "string",
       "defaultValue": "BIGIPNic",
@@ -172,8 +166,7 @@
                     {
                         "name": "ipconfig1",
                         "properties": {
-                          "privateIPAllocationMethod": "Static",
-                          "privateIPAddress": "[parameters('staticIPAddress')]",
+                          "privateIPAllocationMethod": "Dynamic",
                             "subnet": {
                                 "id": "[variables('subnetRef')]"
                             },

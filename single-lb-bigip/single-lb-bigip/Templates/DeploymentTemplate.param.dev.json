@@ -1,21 +1,18 @@
 {
-    "$schema":  "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
-    "contentVersion":  "1.0.0.0",
-    "parameters":  {
-                       "newStorageAccountName":  {
-                                                     "value":  "waftest9"
-                                                 },
-                       "location":  {
-                                        "value":  "eastus"
-                                    },
-                       "adminUsername":  {
-                                             "value":  "azureuser"
-                                         },
-                       "dnsNameForPublicIP":  {
-                                                  "value":  "waftest9"
-                                              },
-                       "staticIPAddress":  {
-                                               "value":  "10.10.1.10"
-                                           }
-                   }
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "newStorageAccountName": {
+      "value": "waftest3"
+    },
+    "location": {
+      "value": "westus"
+    },
+    "adminUsername": {
+      "value": "azureuser"
+    },
+    "dnsNameForPublicIP": {
+      "value": "waftest3"
+    }
+  }
 }

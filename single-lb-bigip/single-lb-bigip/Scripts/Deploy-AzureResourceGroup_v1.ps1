@@ -21,7 +21,7 @@ $ResourceGroupLocation= Read-Host -Prompt "Please enter the new resource group l
 $ResourceGroupName= Read-Host -Prompt "Please enter the name of the new resource group"
 $srcUri= Read-Host -Prompt "Please enter the URI including the .vhd file name of the source image"
 $adminName= Read-Host -Prompt "Please enter a new administrator username for the VM"
-$staticIPAddress= Read-Host -Prompt "Please enter a static IP address for the WAF"
+#$staticIPAddress= Read-Host -Prompt "Please enter a static IP address for the WAF"
 
 
 #Read the JSON Parameter file
@@ -30,7 +30,7 @@ $json.parameters.newStorageAccountName.value = $ResourceGroupName
 $json.parameters.location.value = $ResourceGroupLocation
 $json.parameters.dnsNameForPublicIP.value = $ResourceGroupName
 $json.parameters.adminUsername.value = $adminName
-$json.parameters.staticIPAddress.value= $staticIPAddress
+#$json.parameters.staticIPAddress.value= $staticIPAddress
 $json | ConvertTo-Json | Set-Content -Path $TemplateParametersFile
 
 ###Create a new Resource Group for Deployment
