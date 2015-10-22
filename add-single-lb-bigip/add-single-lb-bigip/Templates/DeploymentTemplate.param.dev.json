@@ -1,47 +1,47 @@
 {
-  "resourceGroupName": {
-    "value": null
-  },
-  "virtualNetworkName": {
-    "value": null
-  },
-  "SubnetName": {
-    "value": null
-  },
-  "NICName": {
-    "value": null
-  },
-  "availabilitySetName": {
-    "value": null
-  },
-  "loadBalancerName": {
-    "value": null
-  },
-  "inboundNATRuleGUIName": {
-    "value": null
-  },
-  "inboundNATRuleGUIExternalPort": {
-    "value": null
-  },
-  "inboundNATRuleSSHName": {
-    "value": null
-  },
-  "inboundNATRuleSSHExternalPort": {
-    "value": null
-  },
-  "wafName": {
-    "value": null
-  },
-  "adminUsername": {
-    "value": null
-  },
-  "userImageStorageAccountName": {
-    "value": null
-  },
-  "userImageStorageContainerName": {
-    "value": null
-  },
-  "userImageVhdName": {
-    "value": null
-  }
+    "resourceGroupName":  {
+                              "value":  "waftest3"
+                          },
+    "virtualNetworkName":  {
+                               "value":  "BIGIPVNET"
+                           },
+    "SubnetName":  {
+                       "value":  "BIGIPSubNet"
+                   },
+    "NICName":  {
+                    "value":  "BIPIPNic5"
+                },
+    "availabilitySetName":  {
+                                "value":  "BIGIPAvailabilitySet"
+                            },
+    "loadBalancerName":  {
+                             "value":  "BIGIPLoadBlancer"
+                         },
+    "inboundNATRuleGUIName":  {
+                                  "value":  "guimgt5"
+                              },
+    "inboundNATRuleGUIExternalPort":  {
+                                          "value":  12443
+                                      },
+    "inboundNATRuleSSHName":  {
+                                  "value":  "sshmgt5"
+                              },
+    "inboundNATRuleSSHExternalPort":  {
+                                          "value":  12022
+                                      },
+    "wafName":  {
+                    "value":  "MyBIGIP5"
+                },
+    "adminUsername":  {
+                          "value":  "azureuser"
+                      },
+    "userImageStorageAccountName":  {
+                                        "value":  "waftest3"
+                                    },
+    "userImageStorageContainerName":  {
+                                          "value":  "waftest3"
+                                      },
+    "userImageVhdName":  {
+                             "value":  "waftest3.vhd"
+                         }
 }
