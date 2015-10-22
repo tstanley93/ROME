@@ -73,6 +73,12 @@
         "description": ""
       }
     },
+    "staticIPAddress": {
+      "type": "string",
+      "metadata": {
+        "description": "Static IP Address"
+      }
+    },
     "nicName": {
       "type": "string",
       "defaultValue": "BIGIPNic",
@@ -99,7 +105,16 @@
       "metadata": {
         "description": "Unique DNS Name for the Public IP used to access the Virtual Machine."
       }
-    }
+    },
+      "storType": {
+          "type": "string",
+          "defaultValue": "Standard_LRS",
+          "allowedValues": [
+              "Standard_LRS",
+              "Standard_GRS",
+              "Standard_ZRS"
+          ]
+      }
   },
     "variables": {
         "imageURI": "[concat('http://',parameters('newStorageAccountName'),'.blob.core.windows.net/',parameters('newStorageAccountName'),'/', parameters('newStorageAccountName'), '.vhd')]",
@@ -166,7 +181,8 @@
                     {
                         "name": "ipconfig1",
                         "properties": {
-                          "privateIPAllocationMethod": "Dynamic",
+                          "privateIPAllocationMethod": "Static",
+                          "privateIPAddress": "[parameters('staticIPAddress')]",
                             "subnet": {
                                 "id": "[variables('subnetRef')]"
                             },
@@ -302,12 +318,15 @@
                     "adminPassword": "[parameters('adminPassword')]"
                 },
                 "storageProfile": {
-                    "osDisk": {
+                  "imageReference": {
+                    "publisher": "f5-networks",
+                    "offer": "f5-waf-evaluation",
+                    "sku": "bigip-waf-byol-preview",
+                    "version": "latest"
+                  },  
+                  "osDisk": {
                         "name": "osdisk",
                         "osType": "Linux",
-                        "image": {
-                            "uri": "[variables('imageURI')]"
-                        },
                         "vhd": {
                             "uri": "[concat('http://',parameters('newStorageAccountName'),'.blob.core.windows.net/',parameters('newStorageAccountName'),'/osDisk.vhd')]"
                         },
@@ -322,6 +341,19 @@
                         }
                     ]
                 }
+            }
+        },
+        {
+            "name": "[parameters('newStorageAccountName')]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "location": "[parameters('location')]",
+            "apiVersion": "2015-05-01-preview",
+            "dependsOn": [ ],
+            "tags": {
+                "displayName": "stor"
+            },
+            "properties": {
+                "accountType": "[parameters('storType')]"
             }
         }
     ]

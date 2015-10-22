@@ -3,16 +3,19 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "newStorageAccountName": {
-      "value": "waftest3"
+      "value": null
     },
     "location": {
-      "value": "westus"
+      "value": null
     },
     "adminUsername": {
-      "value": "azureuser"
+      "value": null
     },
     "dnsNameForPublicIP": {
-      "value": "waftest3"
+      "value": null
+    },
+    "staticIPAddress": {
+      "value": null
     }
   }
 }
