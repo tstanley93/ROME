@@ -20,7 +20,7 @@ $TemplateParametersFile = [System.IO.Path]::Combine($PSScriptRoot, $TemplatePara
 $ResourceGroupLocation= Read-Host -Prompt "Please enter the existing resource group location, e.g. West US"
 $ResourceGroupName= Read-Host -Prompt "Please enter the name of the existing resource group"
 $adminName= Read-Host -Prompt "Please enter a new administrator username for the WAF VM"
-#$ipAddress= Read-Host -Prompt "Please enter a new internal static IP Address for the WAF VM"
+$ipAddress= Read-Host -Prompt "Please enter a new internal static IP Address for the WAF VM"
 $NICName= Read-Host -Prompt "Please enter a name for the new WAF VM NIC"
 $wafName= Read-Host -Prompt "Please enter a name for the new WAF VM"
 $inboundNATRuleGUIName= Read-Host -Prompt "Please enter a name for the new WAF VM MGMT GUI NAT Rule"
@@ -34,15 +34,6 @@ $stor= Get-AzureStorageAccount -ResourceGroupName $ResourceGroupName
 $key= Get-AzureStorageAccountKey -ResourceGroupName $ResourceGroupName -StorageAccountName $stor.Name
 $context= New-AzureStorageContext -StorageAccountName $stor.Name -StorageAccountKey $key.key1
 $container= Get-AzureStorageContainer -Context $context
-$vhd= Get-AzureStorageBlob -Container $container.Name -Context $context
-foreach ($i in $vhd)
-{
-	if ($i.Length -ne 0) {
-		if ($i.Name -notmatch "osdisk") {
-				$srcVhd= $i.Name
-			}
-	}
-}
 
 #Create new Inbound NAT Rules on existing load balancer
 $loadBalancerName | Add-AzureLoadBalancerInboundNatRuleConfig -Name $inboundNATRuleGUIName `
@@ -64,7 +55,7 @@ $json= Get-Content -Raw -Path $TemplateParametersFile | ConvertFrom-Json
 $json.resourceGroupName.value = $ResourceGroupName
 $json.virtualNetworkName.value = $vNet.Name
 $json.SubnetName.value = $vNet.Subnets[0].Name
-#$json.staticIPAddress.value = $ipAddress
+$json.staticIPAddress.value = $ipAddress
 $json.NICName.value = $NICName
 $json.availabilitySetName.value = $availabilitySetName.Name
 $json.loadBalancerName.value = $loadBalancerName.Name
@@ -76,7 +67,6 @@ $json.inboundNATRuleSSHExternalPort.value = $inboundNATRuleSSHExternalPort
 $json.adminUsername.value = $adminName
 $json.userImageStorageAccountName.value = $stor.Name
 $json.userImageStorageContainerName.value = $container.Name
-$json.userImageVhdName.value = $srcVhd
 $json | ConvertTo-Json | Set-Content -Path $TemplateParametersFile
 
 

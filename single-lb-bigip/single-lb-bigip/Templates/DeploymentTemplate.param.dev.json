@@ -1,21 +1,24 @@
 {
-  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
-  "contentVersion": "1.0.0.0",
-  "parameters": {
-    "newStorageAccountName": {
-      "value": null
-    },
-    "location": {
-      "value": null
-    },
-    "adminUsername": {
-      "value": null
-    },
-    "dnsNameForPublicIP": {
-      "value": null
-    },
-    "staticIPAddress": {
-      "value": null
-    }
-  }
+    "$schema":  "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion":  "1.0.0.0",
+    "parameters":  {
+                       "newStorageAccountName":  {
+                                                     "value":  "rome5"
+                                                 },
+                       "location":  {
+                                        "value":  "westus"
+                                    },
+                       "adminUsername":  {
+                                             "value":  "azureuser"
+                                         },
+                       "dnsNameForPublicIP":  {
+                                                  "value":  "rome5"
+                                              },
+                       "staticIPAddress":  {
+                                               "value":  "10.10.1.10"
+                                           },
+                       "adminPassword":  {
+                                             "value":  "Junct10n"
+                                         }
+                   }
 }

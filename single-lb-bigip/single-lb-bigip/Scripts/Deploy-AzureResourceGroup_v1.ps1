@@ -75,3 +75,8 @@ New-AzureResourceGroup -Name $ResourceGroupName `
                        -TemplateFile $TemplateFile `
                        -TemplateParameterFile $TemplateParametersFile `
                         -Force -Verbose
+
+
+$url= Get-AzurePublicIpAddress -ResourceGroupName $ResourceGroupName
+Write-Host ("You can connect to the new WAF via https://{0}:8443/" -f $url.DnsSettings.Fqdn)
+Write-Host ("Or you can ssh to the new WAF via {0} on port 8022" -f $url.DnsSettings.Fqdn)
