@@ -1,0 +1,394 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "storageEndpoint": {
+            "type": "string"
+        },
+        "domainId": {
+            "type": "string"
+        },
+        "domainName": {
+            "type": "string"
+        },
+        "virtualNetworkId": {
+            "type": "string"
+        },
+        "subnetName": {
+            "type": "string"
+        },
+        "staticIp": {
+            "type": "string"
+        },
+        "hostName": {
+            "type": "string"
+        },
+        "userName": {
+            "type": "string"
+        },
+        "password": {
+            "type": "securestring"
+        },
+        "location": {
+            "type": "string"
+        },
+        "hardwareSize": {
+            "type": "string"
+        },
+        "vhd": {
+            "type": "string"
+        },
+        "diskSalt": {
+            "type": "string"
+        },
+        "instances": { 
+            "type": "string"
+        }
+    },
+    "variables": {
+        "staticIps": "[split(parameters('staticIp'), ',')]",
+        "publicIPAddressName": "[parameters('hostName')]",
+        "LoadBalancerFrontEndName": "LoadBalancerFrontEnd",
+        "backendAddressPoolName": "WAF",
+        "availabilitySetName": "[parameters('hostName')]",
+        "loadBalancerName": "[concat(parameters('hostName'),'-LB')]",
+        "lbHttpProbeName": "waf-http-probe",
+        "lbHttpsProbeName": "waf-https-probe",
+        "lbPoolName": "StupiderName",
+        "WafNsgName": "[concat(parameters('hostName'),'-NSG')]",
+        "lbNatRuleName": "WAF-Admin",
+        "lbNatRuleNameSSH": "WAF-Admin-SSH",
+        "nicName": "[concat(parameters('hostName'),'-Nic')]",
+        "lbID": "[resourceId('Microsoft.Network/loadBalancers',variables('loadBalancerName'))]",
+        "availabilitySetId": "[resourceId('Microsoft.Compute/availabilitySets',variables('availabilitySetName'))]",
+        "nicID": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]",
+        "publicIPAddressID": "[resourceId('Microsoft.Network/publicIPAddresses',variables('publicIPAddressName'))]",
+        "frontEndIPConfigID": "[concat(variables('lbID'),'/frontendIPConfigurations/',variables('LoadBalancerFrontEndName'))]",
+        "NsgId": "[resourceId('Microsoft.Network/networkSecurityGroups',variables('WafNsgName'))]",
+        "lbPoolID": "[concat(variables('lbID'),'/backendAddressPools/',variables('backendAddressPoolName'))]",
+        "lbHttpProbeID": "[concat(variables('lbID'),'/probes/',variables('lbHttpProbeName'))]",
+        "lbHttpsProbeID": "[concat(variables('lbID'),'/probes/',variables('lbHttpsProbeName'))]",
+        "lbNatRuleID": "[concat(variables('lbID'),'/inboundNatRules/',variables('lbNatRuleName'))]",
+        "lbNatRuleSSHID": "[concat(variables('lbID'),'/inboundNatRules/',variables('lbNatRuleNameSSH'))]",
+        "vhdUri": "[concat(parameters('storageEndpoint'), 'vhds/', parameters('hostName'), '.vhd')]",
+        "numberOfInstances": "[int(parameters('instances'))]"
+    },
+    "resources": [
+        {
+            "apiVersion": "2015-05-01-preview",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "name": "[variables('publicIPAddressName')]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "publicIPAllocationMethod": "Static"
+            }
+        },
+        {
+            "type": "Microsoft.Compute/availabilitySets",
+            "name": "[variables('availabilitySetName')]",
+            "apiVersion": "2015-05-01-preview",
+            "location": "[parameters('location')]",
+            "properties": { }
+        },
+        {
+            "apiVersion": "2015-05-01-preview",
+            "name": "[variables('loadBalancerName')]",
+            "type": "Microsoft.Network/loadBalancers",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/publicIPAddresses/', variables('publicIPAddressName'))]"
+            ],
+            "properties": {
+                "frontendIPConfigurations": [
+                    {
+                        "name": "[variables('LoadBalancerFrontEndName')]",
+                        "properties": {
+                            "publicIPAddress": {
+                                "id": "[variables('publicIPAddressID')]"
+                            }
+                        }
+                    }
+                ],
+                "backendAddressPools": [
+                    {
+                        "name": "[variables('backendAddressPoolName')]"
+                    }
+                ],
+                "inboundNatRules": [
+                    // Will be created on the next resource
+                ],
+                "LoadBalancingRules": [
+                    {
+                        "name": "HTTP",
+                        "properties": {
+                            "FrontendIPConfiguration": {
+                                "id": "[variables('frontEndIPConfigID')]"
+                            },
+                            "backendAddressPool": {
+                                "id": "[variables('lbPoolID')]"
+                            },
+                            "protocol": "tcp",
+                            "frontendPort": 80,
+                            "backendPort": 880,
+                            "enableFloatingIP": false,
+                            "idleTimeoutInMinutes": 5,
+                            "probe": {
+                                "id": "[variables('lbHttpProbeID')]"
+                            }
+                        }
+
+                    },
+                    {
+                        "name": "HTTPS",
+                        "properties": {
+                            "FrontendIPConfiguration": {
+                                "id": "[variables('frontEndIPConfigID')]"
+                            },
+                            "backendAddressPool": {
+                                "id": "[variables('lbPoolID')]"
+                            },
+                            "protocol": "tcp",
+                            "frontendPort": 443,
+                            "backendPort": 8443,
+                            "enableFloatingIP": false,
+                            "idleTimeoutInMinutes": 5,
+                            "probe": {
+                                "id": "[variables('lbHttpsProbeID')]"
+                            }
+                        }
+                    }
+                ],
+                "probes": [
+                    {
+                        "name": "[variables('lbHttpProbeName')]",
+                        "properties": {
+                            "protocol": "tcp",
+                            "port": 80, // Check if failure removes vm from entire LB or by lbrule (we want per rule)
+                            "intervalInSeconds": "5",
+                            "numberOfProbes": "2"
+                        }
+                    },
+                    {
+                        "name": "[variables('lbHttpsProbeName')]",
+                        "properties": {
+                            "protocol": "tcp",
+                            "port": 443,
+                            "intervalInSeconds": "5",
+                            "numberOfProbes": "2"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "apiVersion": "2015-05-01-preview",
+            "type": "Microsoft.Network/loadBalancers/inboundNatRules",
+            "name": "[concat(variables('loadBalancerName'), '/', variables('lbNatRuleName'), copyIndex())]",
+            "location": "[parameters('location')]",
+            "copy": {
+                "name": "natRuleLoop",
+                "count": "[variables('numberOfInstances')]"
+            },
+            "dependsOn": [
+                "[concat('Microsoft.Network/loadBalancers/', variables('loadBalancerName'))]"
+            ],
+            "properties": {
+                "frontendIPConfiguration": {
+                    "id": "[variables('frontEndIPConfigID')]"
+                },
+                "protocol": "tcp",
+                "frontendPort": "[add(8443, copyIndex())]",
+                "backendPort": "443",
+                "enableFloatingIP": false
+            }
+        },
+        {
+            "apiVersion": "2015-05-01-preview",
+            "type": "Microsoft.Network/loadBalancers/inboundNatRules",
+            "name": "[concat(variables('loadBalancerName'), '/', variables('lbNatRuleNameSSH'), copyIndex())]",
+            "location": "[parameters('location')]",
+            "copy": {
+                "name": "natRuleLoop",
+                "count": "[variables('numberOfInstances')]"
+            },
+            "dependsOn": [
+                "[concat('Microsoft.Network/loadBalancers/', variables('loadBalancerName'))]"
+            ],
+            "properties": {
+                "frontendIPConfiguration": {
+                    "id": "[variables('frontEndIPConfigID')]"
+                },
+                "protocol": "tcp",
+                "frontendPort": "[add(8022, copyIndex())]",
+                "backendPort": "22",
+                "enableFloatingIP": false
+            }
+        },
+        {
+            "apiVersion": "2015-05-01-preview",
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "name": "[variables('WafNsgName')]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "WAF-admin-web",
+                        "properties": {
+                            "description": "Allow WAF administration access",
+                            "protocol": "tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "443",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 100,
+                            "direction": "Inbound"
+                        }
+                    },
+                    {
+                        "name": "WAF-admin-ssh",
+                        "properties": {
+                            "description": "Allow WAF administration SSH access",
+                            "protocol": "tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "22",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 110,
+                            "direction": "Inbound"
+                        }
+                    },
+                    {
+                        "name": "HTTP",
+                        "properties": {
+                            "description": "Allow HTTP access through WAF",
+                            "protocol": "tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "880",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 200,
+                            "direction": "Inbound"
+                        }
+                    },
+                    {
+                        "name": "HTTPS",
+                        "properties": {
+                            "description": "Allow HTTPS access through WAF",
+                            "protocol": "tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "8443",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 300,
+                            "direction": "Inbound"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "apiVersion": "2015-05-01-preview",
+            "type": "Microsoft.Network/networkInterfaces",
+            "name": "[concat(variables('nicName'), copyindex())]",
+            "location": "[parameters('location')]",
+            "copy": {
+                "name": "nicLoop",
+                "count": "[variables('numberOfInstances')]"
+            },
+            "dependsOn": [
+                "[concat('Microsoft.Network/loadBalancers/', variables('loadbalancerName'), '/inboundNatRules/', variables('lbNatRuleName'), copyIndex())]",
+                "[concat('Microsoft.Network/loadBalancers/', variables('loadbalancerName'), '/inboundNatRules/', variables('lbNatRuleNameSSH'), copyIndex())]",
+                "[concat('Microsoft.Network/networkSecurityGroups/', variables('WafNsgName'))]"
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "privateIPAllocationMethod": "Static",
+                            "PrivateIpAddress": "[variables('staticIps')[copyindex()]]",
+                            "subnet": {
+                                "id": "[concat(parameters('virtualNetworkId'), '/subnets/' , parameters('subnetName'))]"
+                            },
+                            "loadBalancerInboundNatRules": [
+                                {
+                                    "id": "[concat(variables('lbNatRuleID'), copyindex())]"
+                                },
+                                {
+                                    "id": "[concat(variables('lbNatRuleSSHID'), copyindex())]"
+                                }
+                            ],
+                            "loadBalancerBackendAddressPools": [
+                                {
+                                    "id": "[variables('lbPoolID')]"
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "networkSecurityGroup": {
+                    "id": "[variables('NsgId')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "name": "[concat(parameters('hostName'), copyindex())]",
+            "apiVersion": "2015-06-15",
+            "location": "[parameters('location')]",
+            "copy": {
+                "name": "wafLoop",
+                "count": "[variables('numberOfInstances')]"
+            },
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkInterfaces/', variables('nicName'), copyindex())]",
+                "[concat('Microsoft.Compute/availabilitySets/', variables('availabilitySetName'))]"
+            ],
+            "plan": {
+                "name": "bigip-waf-byol-preview",
+                "publisher": "f5-networks",
+                "product": "f5-waf-evaluation-preview"
+            },
+            "properties": {
+                "availabilitySet": {
+                    "id": "[variables('availabilitySetId')]"
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[concat(variables('nicID'), copyindex())]"
+                        }
+                    ]
+                },
+                "hardwareProfile": {
+                    "vmSize": "[parameters('hardwareSize')]"
+                },
+                "osProfile": {
+                    "computerName": "[concat(parameters('hostName'), copyindex())]",
+                    "adminUserName": "[parameters('userName')]",
+                    "adminPassword": "[parameters('password')]"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "f5-networks",
+                        "offer": "f5-waf-evaluation-preview",
+                        "sku": "bigip-waf-byol-preview",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "name": "[concat(parameters('hostName'), copyindex())]",
+                        "vhd": {
+                            "uri": "[concat(variables('vhdUri'), copyIndex(), '.vhd')]"
+                        },
+                        "createOption": "fromImage"
+                    },
+                    "dataDisks": [ ]
+                }
+            }
+        }
+    ]
+}

@@ -8,8 +8,11 @@
     "SubnetName":  {
                        "value":  "BIGIPSubNet"
                    },
+    "staticIPAddress":  {
+                            "value":  "10.10.1.26"
+                        },
     "NICName":  {
-                    "value":  "BIPIPNic5"
+                    "value":  "BIGIPNic6"
                 },
     "availabilitySetName":  {
                                 "value":  "BIGIPAvailabilitySet"
@@ -18,19 +21,19 @@
                              "value":  "BIGIPLoadBlancer"
                          },
     "inboundNATRuleGUIName":  {
-                                  "value":  "guimgt5"
+                                  "value":  "guimgt6"
                               },
     "inboundNATRuleGUIExternalPort":  {
-                                          "value":  12443
+                                          "value":  13443
                                       },
     "inboundNATRuleSSHName":  {
-                                  "value":  "sshmgt5"
+                                  "value":  "sshmgt6"
                               },
     "inboundNATRuleSSHExternalPort":  {
-                                          "value":  12022
+                                          "value":  13022
                                       },
     "wafName":  {
-                    "value":  "MyBIGIP5"
+                    "value":  "MyBIGIP6"
                 },
     "adminUsername":  {
                           "value":  "azureuser"
@@ -40,8 +43,5 @@
                                     },
     "userImageStorageContainerName":  {
                                           "value":  "waftest3"
-                                      },
-    "userImageVhdName":  {
-                             "value":  "waftest3.vhd"
-                         }
+                                      }
 }
