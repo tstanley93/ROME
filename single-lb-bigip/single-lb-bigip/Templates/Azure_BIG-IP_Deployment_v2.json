@@ -204,6 +204,58 @@
       }
     },
     {
+      "apiVersion": "2015-05-01-preview",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[concat(parameters('dnsNameForPublicIP'), '-NSG')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "ssl_rule",
+            "properties": {
+              "description": "",
+              "priority": 101,
+              "sourceAddressPrefix": "*",
+              "sourcePortRange": "*",
+              "destinationAddressPrefix": "*",
+              "destinationPortRange": "443",
+              "protocol": "TCP",
+              "direction": "Inbound",
+              "access": "Allow"
+            }
+          },
+          {
+            "name": "http_rule",
+            "properties": {
+              "description": "",
+              "priority": 102,
+              "sourceAddressPrefix": "*",
+              "sourcePortRange": "*",
+              "destinationAddressPrefix": "*",
+              "destinationPortRange": "80",
+              "protocol": "TCP",
+              "direction": "Inbound",
+              "access": "Allow"
+            }
+          },
+          {
+            "name": "ssh_rule",
+            "properties": {
+              "description": "",
+              "priority": 103,
+              "sourceAddressPrefix": "*",
+              "sourcePortRange": "*",
+              "destinationAddressPrefix": "*",
+              "destinationPortRange": "22",
+              "protocol": "TCP",
+              "direction": "Inbound",
+              "access": "Allow"
+            }
+          }
+        ]
+      }
+    },
+    {
       "apiVersion": "2015-06-15",
       "dependsOn": [
         "[concat('Microsoft.Network/publicIPAddresses/', parameters('dnsNameForPublicIP'))]"
@@ -357,6 +409,28 @@
       },
       "properties": {
         "accountType": "[parameters('storType')]"
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "name": "[concat(parameters('vmName'),'/startup_script')]",
+      "apiVersion": "2015-05-01-preview",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]"
+      ],
+      "properties": {
+        "publisher": "Microsoft.OSTCExtensions",
+        "type": "CustomScriptForLinux",
+        "typeHandlerVersion": "1.2",
+        "settings": {
+          "fileUris": [
+            "https://raw.githubusercontent.com/tstanley93/ROME/master/blackbox.conf",
+            "https://raw.githubusercontent.com/tstanley93/ROME/master/blackboxstartup.sh",
+            "https://raw.githubusercontent.com/tstanley93/ROME/master/start.sh"
+          ],
+          "commandToExecute": "sh start.sh"
+        }
       }
     }
   ]
