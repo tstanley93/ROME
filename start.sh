@@ -25,4 +25,5 @@
 
 mv ./blackbox.conf /config/blackbox.conf
 mv ./blackboxstartup.sh /config/blackboxstartup.sh
-/config/blackboxstartup.sh
+chmod u+x /config/blackboxstartup.sh
+sh /config/blackboxstartup.sh
