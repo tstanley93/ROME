@@ -410,9 +410,10 @@
         "settings": {
           "fileUris": [
             "https://raw.githubusercontent.com/tstanley93/ROME/master/blackbox.conf",
-            "https://raw.githubusercontent.com/tstanley93/ROME/master/blackboxstartup.sh"
+            "https://raw.githubusercontent.com/tstanley93/ROME/master/blackboxstartup.sh",
+            "https://raw.githubusercontent.com/tstanley93/ROME/master/start.sh"
           ],
-          "commandToExecute": "sh blackboxstartup.sh"
+          "commandToExecute": "sh start.sh"
         }
       }
     }
