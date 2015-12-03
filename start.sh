@@ -23,6 +23,6 @@
 ## 11/23/15#  Thomas Stanley#    Created base functionality              ##
 ###########################################################################
 
-mv ./blacbox.conf /config/blackbox.conf
-mv ./blackboxstartup.sh /config/blackboxstarup.sh
+mv ./blackbox.conf /config/blackbox.conf
+mv ./blackboxstartup.sh /config/blackboxstartup.sh
 /config/blackboxstartup.sh
