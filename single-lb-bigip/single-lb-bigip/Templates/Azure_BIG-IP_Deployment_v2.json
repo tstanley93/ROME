@@ -8,30 +8,24 @@
         "description": "Unique DNS Name for the Storage Account where the Virtual Machine's disks will be placed."
       }
     },
-    "storageAccountType": {
-      "type": "string",
-      "defaultValue": "Standard_LRS",
-      "metadata": {
-        "description": ""
-      }
-    },
-    "location": {
-      "type": "string",
-      "defaultValue": "West US"
-    },
     "vmName": {
       "type": "string",
-      "defaultValue": "MyBIGIP",
       "metadata": {
-        "description": ""
+        "description": "The name of this BIG-IP"
       }
     },
     "vmSize": {
       "type": "string",
-      "defaultValue": "Standard_A7",
+      "defaultValue": "Standard_A3",
       "metadata": {
-        "description": ""
-      }
+        "description": "The size of the Virtual Hardware Instance."
+      },
+      "allowedValues": [
+        "Standard_A3",
+        "Standard_A4",
+        "Standard_D2",
+        "Standard_D5"
+      ]
     },
     "adminUsername": {
       "type": "string",
@@ -49,55 +43,49 @@
       "type": "string",
       "defaultValue": "BIGIPVNET",
       "metadata": {
-        "description": ""
+        "description": "Name of the newly created Virtual Network"
       }
     },
     "vnetAddressPrefix": {
       "type": "string",
       "defaultValue": "10.10.0.0/16",
       "metadata": {
-        "description": ""
+        "description": "Address space for the entire virtual network."
       }
     },
     "subnetName": {
       "type": "string",
       "defaultValue": "BIGIPSubNet",
       "metadata": {
-        "description": ""
+        "description": "Name of the Subnet that the BIG-IP will be created on."
       }
     },
     "subnetPrefix": {
       "type": "string",
       "defaultValue": "10.10.1.0/24",
       "metadata": {
-        "description": ""
-      }
-    },
-    "staticIPAddress": {
-      "type": "string",
-      "metadata": {
-        "description": "Static IP Address"
+        "description": "Address space of the Subnet that the BIG-IP will be created on."
       }
     },
     "nicName": {
       "type": "string",
       "defaultValue": "BIGIPNic",
       "metadata": {
-        "description": ""
+        "description": "The name of the NIC that will be attached to the BIG-IP."
       }
     },
     "loadBalancerName": {
       "type": "string",
       "defaultValue": "BIGIPLoadBlancer",
       "metadata": {
-        "description": ""
+        "description": "The nam eof the Azure Load Balancer that will support the BIG-IP for clustering."
       }
     },
     "availabilitySetName": {
       "type": "string",
       "defaultValue": "BIGIPAvailabilitySet",
       "metadata": {
-        "description": ""
+        "description": "The name of the Azure Availability Set that will keep more than one BIG-IP on different virtual hardware for up time."
       }
     },
     "dnsNameForPublicIP": {
@@ -128,7 +116,7 @@
       "apiVersion": "2015-06-15",
       "type": "Microsoft.Network/publicIPAddresses",
       "name": "[parameters('dnsNameForPublicIP')]",
-      "location": "[parameters('location')]",
+      "location": "[resourceGroup().location]",
       "tags": {
         "displayName": "PublicIPAddress"
       },
@@ -143,7 +131,7 @@
       "apiVersion": "2015-06-15",
       "type": "Microsoft.Network/virtualNetworks",
       "name": "[parameters('virtualNetworkName')]",
-      "location": "[parameters('location')]",
+      "location": "[resourceGroup().location]",
       "tags": {
         "displayName": "VirtualNetwork"
       },
@@ -167,7 +155,7 @@
       "apiVersion": "2015-06-15",
       "type": "Microsoft.Network/networkInterfaces",
       "name": "[parameters('nicName')]",
-      "location": "[parameters('location')]",
+      "location": "[resourceGroup().location]",
       "tags": {
         "displayName": "NetworkInterface"
       },
@@ -180,8 +168,7 @@
           {
             "name": "ipconfig1",
             "properties": {
-              "privateIPAllocationMethod": "Static",
-              "privateIPAddress": "[parameters('staticIPAddress')]",
+              "privateIPAllocationMethod": "Dynamic",
               "subnet": {
                 "id": "[variables('subnetRef')]"
               },
@@ -260,7 +247,7 @@
       "dependsOn": [
         "[concat('Microsoft.Network/publicIPAddresses/', parameters('dnsNameForPublicIP'))]"
       ],
-      "location": "[parameters('location')]",
+      "location": "[resourceGroup().location]",
       "name": "[parameters('loadBalancerName')]",
       "properties": {
         "frontendIPConfigurations": [
@@ -340,7 +327,7 @@
     },
     {
       "apiVersion": "2015-06-15",
-      "location": "[parameters('location')]",
+      "location": "[resourceGroup().location]",
       "name": "[parameters('availabilitySetName')]",
       "type": "Microsoft.Compute/availabilitySets"
     },
@@ -348,7 +335,7 @@
       "apiVersion": "2015-06-15",
       "type": "Microsoft.Compute/virtualMachines",
       "name": "[parameters('vmName')]",
-      "location": "[parameters('location')]",
+      "location": "[resourceGroup().location]",
       "tags": {
         "displayName": "VirtualMachine"
       },
@@ -402,11 +389,8 @@
     {
       "name": "[parameters('newStorageAccountName')]",
       "type": "Microsoft.Storage/storageAccounts",
-      "location": "[parameters('location')]",
+      "location": "[resourceGroup().location]",
       "apiVersion": "2015-05-01-preview",
-      "tags": {
-        "displayName": "stor"
-      },
       "properties": {
         "accountType": "[parameters('storType')]"
       }
@@ -426,10 +410,9 @@
         "settings": {
           "fileUris": [
             "https://raw.githubusercontent.com/tstanley93/ROME/master/blackbox.conf",
-            "https://raw.githubusercontent.com/tstanley93/ROME/master/blackboxstartup.sh",
-            "https://raw.githubusercontent.com/tstanley93/ROME/master/start.sh"
+            "https://raw.githubusercontent.com/tstanley93/ROME/master/blackboxstartup.sh"
           ],
-          "commandToExecute": "sh start.sh"
+          "commandToExecute": "sh blackboxstartup.sh"
         }
       }
     }
