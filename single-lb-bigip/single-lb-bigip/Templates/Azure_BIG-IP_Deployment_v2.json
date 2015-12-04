@@ -105,7 +105,7 @@
       ]
     },
     "applicationURL": {
-      "type": "string",
+      "type": "object",
       "metadata": {
         "description": "The FQDN of the applicaiton that you would like to be behind this F5 Web Applicaiton Firewall. "
       }
