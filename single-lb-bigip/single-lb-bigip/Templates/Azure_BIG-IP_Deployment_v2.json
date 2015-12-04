@@ -103,6 +103,18 @@
         "Standard_GRS",
         "Standard_ZRS"
       ]
+    },
+    "applicationURL": {
+      "type": "string",
+      "metadata": {
+        "description": "The FQDN of the applicaiton that you would like to be behind this F5 Web Applicaiton Firewall. "
+      }
+    },
+    "licenseToken": {
+      "type": "string",
+      "metadata": {
+        "description": "The License Token for the BYOL F5 Web Application Firewall."
+      }
     }
   },
   "variables": {
@@ -414,7 +426,7 @@
             "https://raw.githubusercontent.com/tstanley93/ROME/master/blackboxstartup.sh",
             "https://raw.githubusercontent.com/tstanley93/ROME/master/start.sh"
           ],
-          "commandToExecute": "sh start.sh"
+          "commandToExecute": "[concat('sh start.sh ',parameters('dnsNameForPublicIP'), parameters('applicationURL'), parameters('licenseToken'))]"
         }
       }
     }
