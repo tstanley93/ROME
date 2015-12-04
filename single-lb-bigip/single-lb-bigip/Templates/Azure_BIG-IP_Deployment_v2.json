@@ -293,7 +293,7 @@
               },
               "protocol": "Tcp",
               "frontendPort": 80,
-              "backendPort": 80,
+              "backendPort": 880,
               "idleTimeoutInMinutes": 15
             }
           }
@@ -302,7 +302,7 @@
           {
             "properties": {
               "protocol": "Tcp",
-              "port": 80,
+              "port": 880,
               "intervalInSeconds": 15,
               "numberOfProbes": 2
             },
