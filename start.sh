@@ -23,6 +23,9 @@
 ## 11/23/15#  Thomas Stanley#    Created base functionality              ##
 ###########################################################################
 
+echo $1
+echo $2
+echo $3
 mv ./blackbox.conf /config/blackbox.conf
 mv ./blackboxstartup.sh /config/blackboxstartup.sh
 chmod u+x /config/blackboxstartup.sh
