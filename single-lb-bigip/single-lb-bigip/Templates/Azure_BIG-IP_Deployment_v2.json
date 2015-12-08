@@ -396,6 +396,12 @@
               "id": "[resourceId('Microsoft.Network/networkInterfaces',parameters('nicName'))]"
             }
           ]
+        },
+        "diagnosticsProfile": {
+          "bootDiagnostics": {
+            "enabled": true,
+            "storageUri": "[concat('http://',parameters('newstorageAccountName'),'.blob.core.windows.net')]"
+          }
         }
       }
     },
