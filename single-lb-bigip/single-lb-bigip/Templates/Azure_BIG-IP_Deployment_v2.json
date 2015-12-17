@@ -432,7 +432,7 @@
             "https://raw.githubusercontent.com/tstanley93/ROME/master/blackboxstartup.sh",
             "https://raw.githubusercontent.com/tstanley93/ROME/master/start.sh"
           ],
-          "commandToExecute": "[concat('sh start.sh ',parameters('dnsNameForPublicIP'),' ',parameters('applicationIP'), ' ',parameters('licenseToken'))]"
+          "commandToExecute": "[concat('bash start.sh ',parameters('dnsNameForPublicIP'),' ',parameters('applicationIP'), ' ',parameters('licenseToken'))]"
         }
       }
     }

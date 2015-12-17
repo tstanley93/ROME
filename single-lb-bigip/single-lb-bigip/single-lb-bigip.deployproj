@@ -31,7 +31,11 @@
     <None Include="Deployment.targets">
       <Visible>False</Visible>
     </None>
+    <None Include="Scripts\blackbox.conf" />
+    <None Include="Scripts\blackbox.txt" />
+    <None Include="Scripts\blackboxstartup.sh" />
     <None Include="Scripts\Deploy-AzureResourceGroup_v1.ps1" />
+    <None Include="Scripts\start.sh" />
     <None Include="Templates\Azure_BIG-IP_Deployment_v2.json" />
     <None Include="Templates\DeploymentTemplate.param.dev.json" />
   </ItemGroup>
