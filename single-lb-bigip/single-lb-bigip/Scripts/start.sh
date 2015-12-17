@@ -23,12 +23,26 @@
 ## 11/23/15#  Thomas Stanley#    Created base functionality              ##
 ###########################################################################
 
-## Edit the blackbox.conf file with parameters from the user via deployment.
+## Create blackbox.conf from a predefined string.
+jsonfile='{"loadbalance":{"is_master":"'$1'","master_hostname":"'$2'","master_address":"'$3'","master_password":"'$4'"'
+	',"device_hostname":"'$5'","device_address":"'$6'","device_password":"'$4'"},"bigip":{"application_name":"Azure Security F5 WAF"'
+	',"ntp_servers":"1.pool.ntp.org 2.pool.ntp.org","ssh_key_inject":"false","change_passwords":"false","license":{"basekey":"'$6'"},'
+	'"modules":{"auto_provision":"true","ltm":"nominal","afm":"none","asm":"nominal"},"redundancy":{"provision":"false"},"network"'
+	':{"provision":"false"},"iappconfig":{"f5.rome_waf":{"template_location":'
+	'"http://cdn-prod-ore-f5.s3-website-us-west-2.amazonaws.com/product/blackbox/staging/azure/f5.rome_waf.tmpl","deployments":{"'$deployment1'"}}}}}'
+
+deployment1='deployment_'$7'.'$8'.cloudapp.azure.com":{"traffic-group":"none","strict-updates":"disabled","variables":{"configuration__saskey":"tAjn8Xuzelj9ps4HzRsHXqXznAIiHPFIzlSC08De2Zk=","configuration__saskeyname":"sharing-is-caring","configuration__eventhub":"event-horizon","configuration__eventhub_namespace":"event-horizon-ns","configuration__applianceid":"8A3ED335-F734-449F-A8FB-335B48FE3B50","configuration__logginglevel":"Alert","configuration__loggingtemplate":"CEF"},"tables":{"configuration__destination":{"column-names":["port","mode","backendmembers","monitoruser","monitorpass","monitoruri","monitorexpect","asmtemplate","asmapptype","asmlevel","l7ddos","ipintel","caching","tcpoptmode","fqdns","oneconnect","sslpkcs12","sslpassphrase","sslcert","sslkey","sslchain"],"rows":{'$row1'}}}}'
+
+## Create logic to create each row we needed.  
+## -->Could be multiple rows for each application.
+## -->Maybe we should break this at the deployment level.
+## -->Will need more logic for this.
+row1='"1":["880","http",["servers3.westus.cloudapp.azure.com:80"],"","","","","","linux","high","yes","yes","yes","wanlan","","yes","","","","",""]'
+echo $jsonfile > /config/blackbox.conf
 
 
 
 ## Move the files and run them.
-mv ./blackbox.conf /config/blackbox.conf
 mv ./blackboxstartup.sh /config/blackboxstartup.sh
 chmod u+x /config/blackboxstartup.sh
 bash /config/blackboxstartup.sh

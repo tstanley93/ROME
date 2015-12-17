@@ -1,3 +1,11 @@
 ## Parameters needed during deployment, for the blackbox.conf file.
 
-1.) 
+1.) loadbalance.is_master 
+2.) loadbalance.master_hostname
+3.) loadbalance.master_address 
+4.) loadbalance.master_password
+5.) loadbalance.device_hostname
+6.) loadbalance.device_address
+7.) loadbalance.device_password
+8.) bigip.license.basekey
+9.) bigip.iappconfig.f5.rome_waf.deployments
