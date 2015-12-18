@@ -31,6 +31,7 @@
     <None Include="Deployment.targets">
       <Visible>False</Visible>
     </None>
+    <None Include="HTMLPage1.html" />
     <None Include="Scripts\blackbox.conf" />
     <None Include="Scripts\blackbox.txt" />
     <None Include="Scripts\blackboxstartup.sh" />
