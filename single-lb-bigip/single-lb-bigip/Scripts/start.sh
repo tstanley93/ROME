@@ -28,25 +28,25 @@
 ## -->Could be multiple rows for each application.
 ## -->Maybe we should break this at the deployment level.
 ## -->Will need more logic for this.
-ismaster=$1
-masterhostname=$2
-masteraddress=$3
-masterpassword=$4
-devicehostname=$5
-deviceaddress=$6
-basekey=$7
-appname=$8
-rownumber=$9
-vipport=$10
-protocol=$11
-host=$12
-location=$13
-appport=$14
-asmapptype=$15
-asmlevel=$16
-fqdn=$17
-sslpkcs12=$18
-sslpassphrase=$19
+ismaster=$1 #true or false
+masterhostname=$2 #if master leave blank
+masteraddress=$3 #if master leavge blank
+masterpassword=$4 #password for master
+devicehostname=$5 #hostname of this device
+deviceaddress=$6 #IP address of this device
+basekey=$7 #BYOL License key
+appname=$8 #the name of the application
+rownumber=$9 #number of the row that will be added
+vipport=$10 #port number of the BIG-IP VIP
+protocol=$11 #protocol for the VIP like http or https
+host=$12 #ip address of the application servers, or host portion of URL
+location=$13 #if URL instead of IP address then the domain with location of the URL
+appport=$14 #the port of the application
+asmapptype=$15 # linux or windows
+asmlevel=$16 #blocking level, high medium low
+fqdn=$17 #new fqdn for the application
+sslpkcs12=$18 #path of the pkcs file
+sslpassphrase=$19 #password for the pkcs file
 
 row1='"'$rownumber'":["'$vipport'","'$protocol'",["'$host'.'$location'.cloudapp.azure.com:'$appport'"],"","","","","","'$asmapptype'","'$asmlevel'","yes","yes","yes","wanlan","'$fqdn'","yes","","","","",""]'
 
